@@ -6,7 +6,10 @@ const { ethers } = require('ethers');
 
 const app = express();
 app.use(express.json());
-app.use(cors({ origin: '*' })); // CORS middleware - allows browser fetches
+app.use(cors({ origin: '*' })); // CORS middleware
+
+// Handle preflight OPTIONS
+app.options('*', cors()); // Explicit for Vercel preflights
 
 // Mocks setup (self-heal: Fallbacks built-in)
 nock('https://video.twilio.com').persist().post('/v1/Rooms').reply(201, { sid: 'RM-mock' });
