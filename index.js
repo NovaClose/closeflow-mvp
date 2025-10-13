@@ -1,10 +1,12 @@
 const express = require('express');
+const cors = require('cors'); // Add this for browser fetches
 const nock = require('nock');
 const crypto = require('crypto');
 const { ethers } = require('ethers');
 
 const app = express();
 app.use(express.json());
+app.use(cors({ origin: '*' })); // Add this line
 
 // Mocks setup (self-heal: Fallbacks built-in)
 nock('https://video.twilio.com').persist().post('/v1/Rooms').reply(201, { sid: 'RM-mock' });
