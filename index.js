@@ -1,22 +1,20 @@
 export default function handler(req, res) {
-  // Handle preflight OPTIONS
-  if (req.method === 'OPTIONS') {
-    res.setHeader('Access-Control-Allow-Origin', '*');
-    res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
-    res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
-    res.status(200).end();
-    return;
-  }
-
-  // CORS for all
+  // Built-in CORS headers for all responses
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
 
+  // Handle preflight OPTIONS (returns 200)
+  if (req.method === 'OPTIONS') {
+    res.status(200).end();
+    return;
+  }
+
   if (req.method === 'POST' && req.url === '/start-cash-flip') {
     const { userId, state, docId, participants } = req.body;
     try {
-      const hash = require('crypto').createHash('sha256').update(docId).digest('hex');
+      const crypto = require('crypto');
+      const hash = crypto.createHash('sha256').update(docId).digest('hex');
 
       const compliant = ['TX', 'FL', 'VA'].includes(state);
       const flags = compliant ? [] : ['Hybrid req—fallback e-sig'];
@@ -25,6 +23,8 @@ export default function handler(req, res) {
       const roomSid = 'RM-mock';
       const envelopeId = 'ENV-mock';
 
+      const { ethers } = require('ethers');
+      const provider = new ethers.JsonRpcProvider('http://localhost:8545');
       const txHash = '0xmock-tx';
 
       const recap = {
