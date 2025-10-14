@@ -1,6 +1,5 @@
 {
   "rewrites": [
-    { "source": "/api/(.*)", "destination": "/api" },
     { "source": "/start-cash-flip", "destination": "/api/start-cash-flip" },
     { "source": "/metrics", "destination": "/api/metrics" },
     { "source": "/(.*)", "destination": "/api" }
