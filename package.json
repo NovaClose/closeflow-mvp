@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "description": "",
   "main": "api/index.js",
+  "type": "commonjs",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "node api/index.js"
@@ -14,6 +15,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "express": "^4.18.2",
     "nock": "^13.5.4",
     "ethers": "^6.13.2"
   }
