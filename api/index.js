@@ -1,24 +1,22 @@
 const express = require('express');
+const cors = require('cors');
+const nock = require('nock');
 const crypto = require('crypto');
 const { ethers } = require('ethers');
-const nock = require('nock');
 
 const app = express();
 app.use(express.json());
+app.use(cors({ origin: '*' }));
 
-// Built-in CORS headers (no cors dep)
-app.use((req, res, next) => {
+// Explicit OPTIONS for preflight
+app.options('*', (req, res) => {
   res.header('Access-Control-Allow-Origin', '*');
   res.header('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
   res.header('Access-Control-Allow-Headers', 'Content-Type');
-  if (req.method === 'OPTIONS') {
-    res.sendStatus(200);
-  } else {
-    next();
-  }
+  res.sendStatus(200);
 });
 
-// Mocks
+// Mocks setup
 nock('https://video.twilio.com').persist().post('/v1/Rooms').reply(201, { sid: 'RM-mock' });
 nock('https://demo.docusign.net').persist().post('/envelopes').reply(201, { envelopeId: 'ENV-mock' });
 nock('https://vision.googleapis.com').persist().post('/v1/images:annotate').reply(200, { fullTextAnnotation: { text: 'audio consent seal' } });
@@ -46,7 +44,6 @@ app.post('/start-cash-flip', async (req, res) => {
       referral: `Share with ${participants[0].role}?`
     };
 
-    res.setHeader('Content-Type', 'application/json');
     res.json({ success: true, hash, flags, riskScore, roomSid, envelopeId, txHash, recap, message: 'Cash flip closed—confetti time! 🎉' });
   } catch (err) {
     console.error('Flip fail:', err);
@@ -56,7 +53,6 @@ app.post('/start-cash-flip', async (req, res) => {
 
 // /metrics route
 app.get('/metrics', (req, res) => {
-  res.setHeader('Content-Type', 'application/json');
   res.json({
     closings: 1,
     nps: 9.2,
@@ -65,4 +61,7 @@ app.get('/metrics', (req, res) => {
   });
 });
 
-module.exports = app;
+// Vercel handler wrapper (fixes subroute 404)
+module.exports = (req, res) => {
+  app(req, res);
+};
