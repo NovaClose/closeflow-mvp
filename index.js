@@ -6,8 +6,9 @@ const { ethers } = require('ethers');
 
 const app = express();
 app.use(express.json());
+app.use(cors({ origin: '*' }));
 
-// Explicit OPTIONS for preflight (before cors)
+// Explicit OPTIONS for preflight
 app.options('*', (req, res) => {
   res.header('Access-Control-Allow-Origin', '*');
   res.header('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
@@ -15,14 +16,12 @@ app.options('*', (req, res) => {
   res.sendStatus(200);
 });
 
-app.use(cors({ origin: '*' }));
-
 // Mocks setup
 nock('https://video.twilio.com').persist().post('/v1/Rooms').reply(201, { sid: 'RM-mock' });
 nock('https://demo.docusign.net').persist().post('/envelopes').reply(201, { envelopeId: 'ENV-mock' });
 nock('https://vision.googleapis.com').persist().post('/v1/images:annotate').reply(200, { fullTextAnnotation: { text: 'audio consent seal' } });
 
-// Explicit route for /start-cash-flip (Vercel fix)
+// /start-cash-flip route
 app.post('/start-cash-flip', async (req, res) => {
   const { userId, state, docId, participants } = req.body;
   try {
@@ -52,6 +51,7 @@ app.post('/start-cash-flip', async (req, res) => {
   }
 });
 
+// /metrics route
 app.get('/metrics', (req, res) => {
   res.json({
     closings: 1,
@@ -61,5 +61,7 @@ app.get('/metrics', (req, res) => {
   });
 });
 
-module.exports = app;
-
+// Vercel handler wrapper (fixes subroute 404)
+module.exports = (req, res) => {
+  app(req, res);
+};
