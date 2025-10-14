@@ -1,17 +1,15 @@
 {
-  "rewrites": [
-    { "source": "/start-cash-flip", "destination": "/api/start-cash-flip" },
-    { "source": "/metrics", "destination": "/api/metrics" },
-    { "source": "/(.*)", "destination": "/api" }
-  ],
-  "headers": [
+  "version": 2,
+  "builds": [
     {
-      "source": "/(.*)",
-      "headers": [
-        { "key": "Access-Control-Allow-Origin", "value": "*" },
-        { "key": "Access-Control-Allow-Methods", "value": "GET, POST, OPTIONS" },
-        { "key": "Access-Control-Allow-Headers", "value": "Content-Type" }
-      ]
+      "src": "api/index.js",
+      "use": "@vercel/node"
+    }
+  ],
+  "routes": [
+    {
+      "src": "/api/(.*)",
+      "dest": "/api/index.js"
     }
   ]
 }
