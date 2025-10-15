@@ -65,3 +65,22 @@ app.get('/metrics', (req, res) => {
 module.exports = (req, res) => {
   app(req, res);
 };
+// Lender queue endpoint (v2)
+app.post('/api/lender-queue', async (req, res) => {
+  const { userId, docId, lenderEmail } = req.body;
+  try {
+    // Mock queue (real: SQS or Redis for doc sync)
+    const queueId = `Q-${Date.now()}`;
+    const recap = {
+      steps: ['Upload: ✅', 'Queue: Lender notified', 'Sync: Pending'],
+      time: '2 mins avg',
+      savings: '$300 (no email chase)',
+      referral: `Share with lender ${lenderEmail}?`
+    };
+
+    res.json({ success: true, queueId, recap, message: 'Doc queued for lender—sync in 2 mins!' });
+  } catch (err) {
+    console.error('Queue fail:', err);
+    res.status(503).json({ error: 'Queue failed—retry?' });
+  }
+});
